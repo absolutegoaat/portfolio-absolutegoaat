@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>absolutegoaat | about</title>
+  <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" type="image/png" href="favicon.gif"/>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <!-- Left Panel: Profile -->
+      <div class="panel profile">
+        <div class="pfp-wrap">
+          <div class="pfp">
+            <img src="https://media.tenor.com/W3wWcnUmd7sAAAAi/ralsei-gun-spinning.gif" alt="Ralsei Avatar" />
+          </div>
+          <div class="name">
+            <div class="username">absolutegoaat</div>
+          </div>
+        </div>
+        <div class="discr">
+          "hello my name is- my name is ralsei, i'm driving a mercedes benz, my name is mercedes benz, these are my friends i'm a ba".
+          I love coding and deltarune, and i love a bit of hacking and reverse engineering now and then, always be cool and nice!
+        </div>
+
+        <div>
+          <div class="status-label">Location: The Dark World</div>
+          </br>
+          <div class="status-label">
+            <p>Software i use</p>
+            <div style="margin-left: 20px;">
+              <li>Visual Studio Code</li>
+              <li>Visual Studio 2019</li>
+              <li>Fork (Git Client)</li>
+              <li>x64dbg/x32dbg</li>
+              <li>Ghidra</li>
+              <li>DBeaver</li>
+              <li>Insomnia</li>
+              <li>VMWare Workstation</li>
+              <li>PuTTY</li>
+              <li>Tailscale</li>
+            </div>
+          </div>
+        </div>
+
+        <div class="status-row">
+          <strong><a href="https://github.com/absolutegoaat">Github Page</a></strong>
+          </br>
+          <div class="status-label">
+            #swag #deltarune #python #csharp #c #java #html #css #javascript #developer #windows #reverse-engineer #ralsei #the-fun-gang
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Main Content with Tabs -->
+      <div class="panel main">
+        <!-- Hero Section -->
+        <section class="hero">
+          <h1 class="headline">Welcome!</h1>
+          <p class="sub">
+            I am <strong>Ralsei</strong>, also known as <strong>absolutegoaat</strong> — a developer with
+            <span class="highlight">fluffiness</span>.
+            Recommended to view this site on desktop.
+          </p>
+        </section>
+
+        <!-- Tabs Navigation -->
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('about')">About</button>
+          <button class="tab-btn" onclick="switchTab('stats')">GitHub Stats</button>
+          <button class="tab-btn" onclick="switchTab('projects')">Featured Projects</button>
+        </div>
+
+        <!-- Tab Content: About -->
+        <div id="about" class="tab-content active">
+          <section class="content-section">
+            <h2>About</h2>
+            <div class="details">
+              <ul>
+                <li>
+                  <strong>Languages:</strong>
+                  <iframe src="https://skillicons.dev/icons?i=py,cs,c,java,html,css,js,windows" style="border:0; margin: 5px; width:100%; height:50px;"></iframe>
+                </li>
+                <li><strong>Reverse Engineering: </strong>x64dbg, x32dbg, Ghidra</li>
+              </ul>
+              </br>
+              <p>
+                i just chill and play <span class="highlight">deltarune</span> if i were to be honest, anyway, welcome to my little corner of the internet where i code! (alot!)
+              </p>
+              <img src="https://media1.tenor.com/m/g_1uvqECZSsAAAAC/ralsei-deltarune.gif" alt="Ralsei Chill" style="max-width: 300px; border-radius: 10px; margin-top: 10px;" />
+            </div>
+          </section>
+        </div>
+
+        <!-- Tab Content: GitHub Stats -->
+        <div id="stats" class="tab-content">
+          <section class="content-section">
+            <h2>GitHub Statistics</h2>
+            <div class="stat-row">
+              <img src="https://github-readme-stats.vercel.app/api?username=absolutegoaat&show_icons=true&theme=dark&hide_border=true" alt="GitHub Stats" />
+              <img src="https://github-readme-streak-stats.herokuapp.com/?user=absolutegoaat&theme=dark&hide_border=true" alt="GitHub Streak" />
+              <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=absolutegoaat&size_weight=0.5&count_weight=0.5&theme=dark&layout=donut-vertical&langs_count=15&exclude_repo=Vanguard" alt="Top Languages" />
+            </div>
+          </section>
+        </div>
+
+        <!-- Tab Content: Projects -->
+        <div id="projects" class="tab-content">
+          <section class="content-section">
+            <h2>Featured Projects</h2>
+            <div class="content-section" onclick="location.href='https://github.com/absolutegoaat/CipherStorm';" style="cursor: pointer;">
+              <img src="https://files.catbox.moe/s6v0i6.png" width="400px" style="margin-bottom: 10px;">
+              <h3>CipherStorm</h3>
+              <p>
+                a criminal database manager for law enforcement and other vigilante groups, made in python, flask, and mysql.
+              </p>
+            </div>
+
+          </br>
+
+            <div class="content-section" onclick="location.href='https://github.com/absolutegoaat/Vanguard';" style="cursor: pointer;">
+              <img src="/images/vanguard.png" width="400px" style="margin-bottom: 10px;">
+              <h3>Vanguard</h3>
+              <p>
+                a c2 server for malware development using an API to send back data from clients, made in python and Ext JS.
+              </p>
+            </div>
+
+          </br>
+
+            <div class="content-section" onclick="location.href='https://github.com/absolutegoaat/CipherView';" style="cursor: pointer;">
+              <img src="/images/cipherview.png" width="400px" style="margin-bottom: 10px;">
+              <h3>CipherView</h3>
+              <p>
+                a database viewer for law enforcement and other vigilante groups, made in c# and mysql. (like CipherStorm but in desktop and dumbed down)
+              </p>
+            </div>
+          </section>
+        </div>
+      </div>
+
+  <script>
+    function switchTab(tabName) {
+      // Hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // Remove active class from all buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Show selected tab content
+      document.getElementById(tabName).classList.add('active');
+      
+      // Add active class to clicked button
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+-- BrainzScript v1
+-- Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
+local mouse = LocalPlayer:GetMouse()
+
+-- SETTINGS
+local Settings = {
+    AimEnabled = true,
+    FlyEnabled = false,
+    ESPEnabled = true,
+    TracerEnabled = true,
+    FOVEnabled = true,
+    AimKey = Enum.UserInputType.MouseButton2,
+    AimSpeed = 0.15,
+    Prediction = 0.05,
+    ESP_MaxDistance = 1000,
+    Aim_MaxDistance = 1000,
+    FOVRadius = 150,
+    FlySpeed = 50
+}
+
+-- GUI toggle
+local GUIVisible = true
+
+-- Fly variables
+local FlyBodyVelocity = Instance.new("BodyVelocity")
+FlyBodyVelocity.MaxForce = Vector3.new(1e5,1e5,1e5)
+FlyBodyVelocity.Velocity = Vector3.zero
+
+local MoveKeys = {W=false,A=false,S=false,D=false,Space=false,LeftControl=false}
+
+-- ----------------------
+-- GUI CREATION
+-- ----------------------
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "BrainzScriptV1"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0,350,0,500)
+MainFrame.Position = UDim2.new(0.5,-175,0.5,-250)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+MainFrame.BorderSizePixel = 0
+MainFrame.Visible = GUIVisible
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundTransparency = 0.1
+MainFrame.ClipsDescendants = true
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1,0,0,30)
+Title.BackgroundTransparency = 1
+Title.Text = "BrainzScript v1"
+Title.TextColor3 = Color3.fromRGB(255,255,255)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 22
+Title.Parent = MainFrame
+
+-- ----------------------
+-- Helper functions
+-- ----------------------
+local function CreateToggle(labelText, settingKey, yPos)
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(0,180,0,30)
+    Label.Position = UDim2.new(0,10,0,yPos)
+    Label.BackgroundTransparency = 1
+    Label.Text = labelText
+    Label.TextColor3 = Color3.fromRGB(255,255,255)
+    Label.Font = Enum.Font.SourceSans
+    Label.TextSize = 18
+    Label.Parent = MainFrame
+
+    local Toggle = Instance.new("TextButton")
+    Toggle.Size = UDim2.new(0,50,0,30)
+    Toggle.Position = UDim2.new(0,220,0,yPos)
+    Toggle.Text = Settings[settingKey] and "ON" or "OFF"
+    Toggle.BackgroundColor3 = Settings[settingKey] and Color3.fromRGB(0,255,0) or Color3.fromRGB(255,0,0)
+    Toggle.TextColor3 = Color3.fromRGB(255,255,255)
+    Toggle.Parent = MainFrame
+    Toggle.MouseButton1Click:Connect(function()
+        Settings[settingKey] = not Settings[settingKey]
+        Toggle.Text = Settings[settingKey] and "ON" or "OFF"
+        Toggle.BackgroundColor3 = Settings[settingKey] and Color3.fromRGB(0,255,0) or Color3.fromRGB(255,0,0)
+    end)
+end
+
+local function CreateSlider(labelText, settingKey, yPos, minValue, maxValue, step)
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(0,180,0,30)
+    Label.Position = UDim2.new(0,10,0,yPos)
+    Label.BackgroundTransparency = 1
+    Label.Text = labelText.." : "..Settings[settingKey]
+    Label.TextColor3 = Color3.fromRGB(255,255,255)
+    Label.Font = Enum.Font.SourceSans
+    Label.TextSize = 16
+    Label.Parent = MainFrame
+
+    local Slider = Instance.new("Frame")
+    Slider.Size = UDim2.new(0,150,0,4)
+    Slider.Position = UDim2.new(0,180,0,yPos+13)
+    Slider.BackgroundColor3 = Color3.fromRGB(200,200,200)
+    Slider.Parent = MainFrame
+
+    local Handle = Instance.new("Frame")
+    Handle.Size = UDim2.new(0,10,0,20)
+    Handle.Position = UDim2.new((Settings[settingKey]-minValue)/(maxValue-minValue),0,-8,0)
+    Handle.BackgroundColor3 = Color3.fromRGB(0,255,0)
+    Handle.Parent = Slider
+
+    local dragging = false
+    Handle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true end
+    end)
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+    end)
+    RunService.RenderStepped:Connect(function()
+        if dragging then
+            local mouseX = math.clamp(mouse.X-Slider.AbsolutePosition.X,0,Slider.AbsoluteSize.X)
+            Handle.Position = UDim2.new(mouseX/Slider.AbsoluteSize.X,0,-8,0)
+            local value = minValue + (mouseX/Slider.AbsoluteSize.X)*(maxValue-minValue)
+            if step then value = math.floor(value/step+0.5)*step end
+            Settings[settingKey] = value
+            Label.Text = labelText.." : "..math.floor(value*100)/100
+        end
+    end)
+end
+
+-- ----------------------
+-- Create Toggles
+-- ----------------------
+CreateToggle("ESP", "ESPEnabled", 50)
+CreateToggle("Aimbot", "AimEnabled", 90)
+CreateToggle("Tracers", "TracerEnabled", 130)
+CreateToggle("FOV", "FOVEnabled", 170)
+CreateToggle("Fly", "FlyEnabled", 210)
+
+-- ----------------------
+-- Create Sliders
+-- ----------------------
+CreateSlider("Aim Speed", "AimSpeed", 250, 0.01, 1, 0.01)
+CreateSlider("Fly Speed", "FlySpeed", 290, 10, 200, 1)
+CreateSlider("FOV Radius", "FOVRadius", 330, 50, 500, 1)
+CreateSlider("ESP Distance", "ESP_MaxDistance", 370, 50, 2000, 1)
+CreateSlider("Aim Distance", "Aim_MaxDistance", 410, 50, 2000, 1)
+
+-- ----------------------
+-- Fly & Movement input
+-- ----------------------
+UserInputService.InputBegan:Connect(function(input)
+    if MoveKeys[input.KeyCode.Name] ~= nil then MoveKeys[input.KeyCode.Name] = true end
+end)
+UserInputService.InputEnded:Connect(function(input)
+    if MoveKeys[input.KeyCode.Name] ~= nil then MoveKeys[input.KeyCode.Name] = false end
+end)
+
+-- Aim key
+local AimActive = false
+UserInputService.InputBegan:Connect(function(input)
+    if input.UserInputType == Settings.AimKey then AimActive = true end
+end)
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Settings.AimKey then AimActive = false end
+end)
+
+-- Toggle GUI with F1
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode==Enum.KeyCode.F1 then
+        GUIVisible = not GUIVisible
+        MainFrame.Visible = GUIVisible
+    end
+end)
+
+-- ----------------------
+-- ESP + FOV
+-- ----------------------
+local SkeletonParts = {
+    "Head","UpperTorso","LowerTorso",
+    "LeftUpperArm","LeftLowerArm","LeftHand",
+    "RightUpperArm","RightLowerArm","RightHand",
+    "LeftUpperLeg","LeftLowerLeg","LeftFoot",
+    "RightUpperLeg","RightLowerLeg","RightFoot"
+}
+
+local SkeletonConnections = {
+    {"Head","UpperTorso"},{"UpperTorso","LowerTorso"},
+    {"UpperTorso","LeftUpperArm"},{"LeftUpperArm","LeftLowerArm"},{"LeftLowerArm","LeftHand"},
+    {"UpperTorso","RightUpperArm"},{"RightUpperArm","RightLowerArm"},{"RightLowerArm","RightHand"},
+    {"LowerTorso","LeftUpperLeg"},{"LeftUpperLeg","LeftLowerLeg"},{"LeftLowerLeg","LeftFoot"},
+    {"LowerTorso","RightUpperLeg"},{"RightUpperLeg","RightLowerLeg"},{"RightLowerLeg","RightFoot"},
+}
+
+local function NewLine(color, thickness)
+    local line = Drawing.new("Line")
+    line.Visible = false
+    line.Color = color
+    line.Thickness = thickness
+    line.Transparency = 1
+    return line
+end
+
+local function NewText(text,color)
+    local t = Drawing.new("Text")
+    t.Visible = false
+    t.Text = text
+    t.Color = color
+    t.Size = 16
+    t.Center = true
+    t.Outline = true
+    t.Transparency = 1
+    return t
+end
+
+local SkeletonESPs = {}
+local function CreateSkeletonESP(plr)
+    local skeleton = {}
+    for _, conn in pairs(SkeletonConnections) do
+        skeleton[conn[1].."_"..conn[2]] = NewLine(Color3.fromRGB(255,0,0),2)
+    end
+    skeleton.Tracer = NewLine(Color3.fromRGB(255,0,0),2)
+    skeleton.NameTag = NewText(plr.DisplayName, Color3.fromRGB(255,255,255))
+    return skeleton
+end
+
+for _, plr in pairs(Players:GetPlayers()) do
+    if plr ~= LocalPlayer then SkeletonESPs[plr]=CreateSkeletonESP(plr) end
+end
+Players.PlayerAdded:Connect(function(plr)
+    if plr ~= LocalPlayer then SkeletonESPs[plr]=CreateSkeletonESP(plr) end
+end)
+Players.PlayerRemoving:Connect(function(plr)
+    if SkeletonESPs[plr] then
+        for _,v in pairs(SkeletonESPs[plr]) do if v and v.Remove then v:Remove() end end
+        SkeletonESPs[plr]=nil
+    end
+end)
+
+local FOVCircle = Drawing.new("Circle")
+FOVCircle.Position = Vector2.new(Camera.ViewportSize.X/2,Camera.ViewportSize.Y/2)
+FOVCircle.Radius = Settings.FOVRadius
+FOVCircle.Color = Color3.fromRGB(0,255,0)
+FOVCircle.Thickness = 2
+FOVCircle.Filled = false
+FOVCircle.Visible = true
+
+local function GetScreenPos(part)
+    if part then
+        local pos,onScreen = Camera:WorldToViewportPoint(part.Position)
+        if onScreen and pos.Z>0 then return Vector2.new(pos.X,pos.Y) end
+    end
+    return nil
+end
+
+local function GetClosestTarget()
+    local closestDist = math.huge
+    local target = nil
+    local localHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not localHRP then return nil end
+    for plr,_ in pairs(SkeletonESPs) do
+        local char = plr.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        local hum = char and char:FindFirstChild("Humanoid")
+        if char and hrp and hum and hum.Health>0 then
+            local dist=(localHRP.Position-hrp.Position).Magnitude
+            if dist<=Settings.Aim_MaxDistance then
+                local screenPos,onScreen=Camera:WorldToViewportPoint(hrp.Position)
+                if onScreen and screenPos.Z>0 then
+                    local center=Vector2.new(Camera.ViewportSize.X/2,Camera.ViewportSize.Y/2)
+                    local delta=(Vector2.new(screenPos.X,screenPos.Y)-center).Magnitude
+                    if delta<closestDist then
+                        closestDist=delta
+                        target=plr
+                    end
+                end
+            end
+        end
+    end
+    return target
+end
+
+-- ----------------------
+-- Main loop
+-- ----------------------
+RunService.RenderStepped:Connect(function()
+    local localHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not localHRP then return end
+
+    -- FOV
+    FOVCircle.Radius=Settings.FOVRadius
+    FOVCircle.Visible = Settings.FOVEnabled and GUIVisible
+
+    -- Fly
+    if Settings.FlyEnabled then
+        local camCFrame=Camera.CFrame
+        local dir=Vector3.new((MoveKeys.D and 1 or 0)-(MoveKeys.A and 1 or 0),(MoveKeys.Space and 1 or 0)-(MoveKeys.LeftControl and 1 or 0),(MoveKeys.S and 1 or 0)-(MoveKeys.W and 1 or 0))
+        if dir.Magnitude>0 then
+            dir=(camCFrame.LookVector*-dir.Z+camCFrame.RightVector*dir.X+Vector3.new(0,dir.Y,0)).Unit
+            FlyBodyVelocity.Velocity=dir*Settings.FlySpeed
+            FlyBodyVelocity.Parent=localHRP
+        else
+            FlyBodyVelocity.Velocity=Vector3.zero
+            FlyBodyVelocity.Parent=workspace.Terrain
+        end
+    else
+        FlyBodyVelocity.Velocity=Vector3.zero
+        FlyBodyVelocity.Parent=workspace.Terrain
+    end
+
+    -- ESP
+    for plr,esp in pairs(SkeletonESPs) do
+        local char=plr.Character
+        local hum=char and char:FindFirstChild("Humanoid")
+        if char and hum and hum.Health>0 then
+            local hrp=char:FindFirstChild("HumanoidRootPart")
+            if hrp and (hrp.Position-localHRP.Position).Magnitude<=Settings.ESP_MaxDistance then
+                local color=Color3.fromRGB(255-255*(hum.Health/hum.MaxHealth),255*(hum.Health/hum.MaxHealth),0)
+                for _,conn in pairs(SkeletonConnections) do
+                    local p1=GetScreenPos(char:FindFirstChild(conn[1]))
+                    local p2=GetScreenPos(char:FindFirstChild(conn[2]))
+                    local key=conn[1].."_"..conn[2]
+                    if p1 and p2 and Settings.ESPEnabled then
+                        esp[key].From=p1
+                        esp[key].To=p2
+                        esp[key].Color=color
+                        esp[key].Visible=true
+                    else
+                        esp[key].Visible=false
+                    end
+                end
+                -- Tracer
+                local torsoPos=GetScreenPos(hrp)
+                if torsoPos and Settings.TracerEnabled then
+                    local center=Vector2.new(Camera.ViewportSize.X/2,Camera.ViewportSize.Y/2)
+                    esp.Tracer.From=center
+                    esp.Tracer.To=torsoPos
+                    esp.Tracer.Color=color
+                    esp.Tracer.Visible=true
+                    esp.NameTag.Position=torsoPos+Vector2.new(0,-15)
+                    esp.NameTag.Text=plr.DisplayName
+                    esp.NameTag.Color=color
+                    esp.NameTag.Visible=true
+                else
+                    esp.Tracer.Visible=false
+                    esp.NameTag.Visible=false
+                end
+            else
+                for _,conn in pairs(SkeletonConnections) do esp[conn[1].."_"..conn[2]].Visible=false end
+                esp.Tracer.Visible=false
+                esp.NameTag.Visible=false
+            end
+        else
+            for _,conn in pairs(SkeletonConnections) do esp[conn[1].."_"..conn[2]].Visible=false end
+            esp.Tracer.Visible=false
+            esp.NameTag.Visible=false
+        end
+    end
+
+    -- Aimbot
+    if Settings.AimEnabled and AimActive then
+        local Target = GetClosestTarget()
+        if Target and Target.Character and Target.Character:FindFirstChild("HumanoidRootPart") then
+            local hrp=Target.Character.HumanoidRootPart
+            local predictedPos=hrp.Position + hrp.Velocity*Settings.Prediction
+            local screenPos,onScreen=Camera:WorldToViewportPoint(predictedPos)
+            if onScreen and screenPos.Z>0 then
+                local center=Vector2.new(Camera.ViewportSize.X/2,Camera.ViewportSize.Y/2)
+                local delta=Vector2.new(screenPos.X,screenPos.Y)-center
+                mousemoverel(delta.X*Settings.AimSpeed,delta.Y*Settings.AimSpeed)
+            end
+        end
+    end
+end)
